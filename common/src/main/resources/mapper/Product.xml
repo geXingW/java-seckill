@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.common.mapper.ProductMapper">
+
+    <resultMap type="com.example.common.entity.Product" id="ProductMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="stock" column="stock" jdbcType="INTEGER"/>
+        <result property="saleCnt" column="sale_cnt" jdbcType="INTEGER"/>
+        <result property="version" column="version" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="ProductMap">
+        select id,
+               name,
+               stock,
+               sale_cnt,
+               version
+        from product
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="ProductMap">
+        select
+        id, name, stock, sale_cnt, version
+        from product
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="stock != null">
+                and stock = #{stock}
+            </if>
+            <if test="saleCnt != null">
+                and sale_cnt = #{saleCnt}
+            </if>
+            <if test="version != null">
+                and version = #{version}
+            </if>
+        </where>
+        limit #{pageable.offset}, #{pageable.pageSize}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from product
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="stock != null">
+                and stock = #{stock}
+            </if>
+            <if test="saleCnt != null">
+                and sale_cnt = #{saleCnt}
+            </if>
+            <if test="version != null">
+                and version = #{version}
+            </if>
+        </where>
+    </select>
+    <select id="getVersionById" resultType="java.lang.Integer">
+        select version from product where id = #{id} limit 1
+    </select>
+    <select id="getVersionAndStockById" resultType="com.example.common.entity.Product">
+        select version, stock from product where id = #{id} limit 1
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into product(name, stock, sale_cnt, version)
+        values (#{name}, #{stock}, #{saleCnt}, #{version})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into product(name, stock, sale_cnt, version)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.name}, #{entity.stock}, #{entity.saleCnt}, #{entity.version})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into product(name, stock, sale_cnt, version)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.name}, #{entity.stock}, #{entity.saleCnt}, #{entity.version})
+        </foreach>
+        on duplicate key update
+        name = values(name),
+        stock = values(stock),
+        sale_cnt = values(sale_cnt),
+        version = values(version)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update product
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="stock != null">
+                stock = #{stock},
+            </if>
+            <if test="saleCnt != null">
+                sale_cnt = #{saleCnt},
+            </if>
+            <if test="version != null">
+                version = #{version},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <update id="updateStockById">
+        update product set `stock` = #{stock} where id = #{id}
+    </update>
+
+    <update id="reduceStockByIdAndVersion">
+      update product set `stock` = #{stock}, `version` = #{version} + 1 where id = #{id} and `version` = #{version}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete
+        from product
+        where id = #{id}
+    </delete>
+
+</mapper>
+

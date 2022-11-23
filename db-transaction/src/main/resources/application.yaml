@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: db-transaction
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://node-101:3306/seckill
+    username: root
+    password: 12345678
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      initial-size: 2
+      min-idle: 2
+      max-active: 10
+
+  redis:
+    host: 192.168.100.113
+    port: 6379
+
+mybatis:
+  mapper-locations:
+    - classpath*:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
